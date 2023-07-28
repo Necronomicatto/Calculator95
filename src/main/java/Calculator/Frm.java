@@ -6,6 +6,9 @@ import javax.swing.border.EtchedBorder;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
+import javax.script.ScriptException;
 
 public class Frm extends JFrame implements ActionListener {
     private JTextField txtFld;
@@ -85,7 +88,7 @@ public class Frm extends JFrame implements ActionListener {
             bttns[i].setForeground(Color.BLUE);
             bttns[i].setBorder(new BevelBorder(BevelBorder.RAISED));
             bttns[i].setFont(fnt);
-            //bttns[i].addActionListener(this);
+            bttns[i].addActionListener(this);
             pnlII.add(bttns[i]);
         }
 
@@ -96,7 +99,7 @@ public class Frm extends JFrame implements ActionListener {
             drkBttns[i].setForeground(Color.RED);
             drkBttns[i].setBorder(new BevelBorder(BevelBorder.RAISED));
             drkBttns[i].setFont(fnt);
-            //bttns[i].addActionListener(this);
+            drkBttns[i].addActionListener(this);
             pnlIV.add(drkBttns[i]);
         }
 
@@ -119,6 +122,7 @@ public class Frm extends JFrame implements ActionListener {
     @Override
     public void actionPerformed(ActionEvent e){
         String command = e.getActionCommand();
+        /* 
         if (command.equals("=")) {
             String expression = txtFld.getText();
             try {
@@ -129,11 +133,45 @@ public class Frm extends JFrame implements ActionListener {
             }
         } else {
             txtFld.setText(txtFld.getText() + command);
+        }*/
+        switch (command) {
+            case "=":
+                break;
+            
+            case "+":
+                String value1 = txtFld.getText();
+                txtFld.setText("");
+                do {
+                    txtFld.setText(txtFld.getText() + command);
+
+                } while (!command.equals("=") ||
+                         !command.equals("+") ||
+                         !command.equals("-") ||
+                         !command.equals("*") ||
+                         !command.equals("/"));
+                
+                String value2 = txtFld.getText();
+                evaluateExpression(value1, command, value2);
+
+            
+            default:
+                txtFld.setText(txtFld.getText() + command);
         }
     }
 
-    private double evaluateExpression(String expression) {
-        return Double.parseDouble(expression);
+    private double evaluateExpression(String value1, String command, String value2) {
+        String expression = value1 + command + value2;
+
+        try {
+            ScriptEngineManager mngr = new ScriptEngineManager();
+            ScriptEngine ngn = mngr.getEngineByName("JavaScript");
+
+            Object result = ngn.eval(expression);
+            return Double.parseDouble(result.toString());
+        } catch (ScriptException ex) {
+            txtFld.setText("Error");
+            return 0;
+        }
     }
 }
 
